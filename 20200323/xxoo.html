@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		
+		<script src="./jquery-3.4.1.js"></script>
+		<style>
+			a{
+				text-decoration: none;
+			}
+			body{
+				margin:0;
+				padding:0;
+			}
+			#Header-box{
+				width:100%;
+				display:flex;
+				justify-content:space-evenly;
+				background-color:white;
+				line-height: 70px;
+				opacity: .8;
+			}
+			.Logo-A{
+				color:rgb(221,221,221);
+				font-size: 26px;
+				font-weight: bold;
+			}
+			.input_text{
+				height: 30px;
+				width:230px;
+				border:1px solid hotpink;
+			}
+			 .input_submit{
+				height:33px;
+				position:absolute;
+				top:20px;
+				left:54%;
+				color:white;
+				border:1px solid hotpink;
+				background-color:hotpink;
+				border-left-color:transparent;
+			 }
+			 .SuiJi{
+				 height:70px;
+			 }
+			 .main{
+				 background-size: 100% 100%;
+				 background-repeat: no-repeat;
+			 }
+			 #DivBox{
+				 margin:0 auto;
+				 width:50%;
+				 border:1px solid #FF69B4;
+				 background-color: white;
+				 text-align:center;
+				 padding:30px 30px;
+			 }
+			 #prev{
+				 margin-right:30px;
+				 width:100px;
+				 font-size:15px;
+				 background-color:#FFB94B;
+				 border:1px solid #FFB94B;
+				 color: #8F5A0A;
+				 border-radius:5px;
+			 }
+			 #next{
+				 font-size:15px;
+				 width:100px;
+				margin-left:30px; 
+				background-color:#FFB94B;
+				border:1px solid #FFB94B;
+				color: #8F5A0A;
+				border-radius:5px;
+			 }
+			 .P{
+				 width:100%;
+				 text-align: justify;
+			 }
+			 .Jianjie{
+				color: mediumseagreen;   
+			 }
+			 #digest{
+				 font-size:16px;
+			 }
+			 #content{
+				 width:100%;
+				 text-align: justify;
+				 
+			 }
+		</style>
+	</head>
+	<body>
+		<div id="Header-box">
+			<a href="#" class="Logo-A">每日一文</a>
+			<form action="#" id="Form">
+				<input type="text" placeholder="输入年月份 查看其他文章" class="input_text">
+				<input type="submit" class='input_submit'>
+			</form>
+			<a href='#'><img src="./logo_img_sc.jpg" alt="" class="SuiJi"></a>
+
+		</div>
+		<div class="main">
+			<div id="DivBox">
+				<button id='prev'><前一天文章</button> 
+				<button id='next'>后一天文章></button>
+				<h1 id='title'>标题</h1>
+				<h2 id='date'>时间</h2>
+				<h3 id='curr'>作者<>
+				</h3>
+				<p class="P"><span class='Jianjie'>简介:</span><span id='digest'></span></span></p>
+				<div id='content'></div>
+			</div>
+		</div>
+		<!-- <script src='./<myajax class="js"></myajax>'></script> -->
+		<script src="./myajax.js"></script>
+		<script>
+			//用数组保存图片地址
+			var imgsArr = [
+				'1.jpg', '2.jpg', '3.jpg', '4.jpg', '5.jpg', '6.jpg', '7.jpg', '8.jpg', '9.jpg'
+			];
+			// 随机插入图片
+			var Rom = Math.floor(Math.random() * 12);
+			$('.main').css({"background-image":"url(./" + imgsArr[Rom]+")"});
+			//创建当前时间 前一天 后一天	 
+			var currDate = '',
+				prevDate = '',
+				nextDate = '';
+			// 1.获取当天文章 加载完后显示当天文章
+			createArticle('today', {	
+				'dev': 1
+			});
+			// 2.点击随机切换文章 + 背景
+			$('.SuiJi').click(function() {
+				createArticle("random", {'dev': 1});
+				//用数组保存图片地址
+				var imgsArr = [
+					'1.jpg', '2.jpg', '3.jpg', '4.jpg', '5.jpg', '6.jpg', '7.jpg', '8.jpg', '9.jpg'
+				];
+				//随机数
+				var Rom = Math.floor(Math.random() * 12);
+
+				// 当我点击随机切换的时候 背景切换 内容也切换
+				// $('.main').css({"background-image":"url(./" + imgsArr[Rom]+")"});
+				$('.main').css({
+					"background-image": "url(./" + imgsArr[Rom] + ")"
+				});
+
+				//创建当前时间 前一天 后一天	 
+				var currDate = '',
+					prevDate = '',
+					nextDate = '';
+			})
+			// 3.输入指定日期 搜索指定某一天的文章 
+			$(".input_submit").click(function (n){
+				var res = $(".input_text").val()
+				createArticle("day",{'dev':1,"date": res });
+			});
+			// 前一天 后一天 的文章
+			$("#prev").click(function(){
+				createArticle("day",{"dev":1,"date":prevDate});
+			});
+			$("#next").click(function(){
+				createArticle("day",{"dev":1,"date":nextDate});
+			});
+			// 创建方法 用来填充内容 
+			function createArticle(t, j) {
+				_.get("https://interface.meiriyiwen.com/article/" + t,
+					j,
+					function(d) {
+						// console.log(d)
+						// 当前时间
+						$("#curr").html(d.data.date.curr);
+						 // 作者
+						$('#date').html(d.data.author);
+						//  标题
+						$('#title').html(d.data.title);
+						//  介绍
+						$('#digest').html(d.data.digest);
+						// 内容
+						$('#content').html(d.data.content);
+						//当天 前一天 后一天
+						currDate = d.data.date.curr, prevDate=d.data.date.prev, nextDate = d.data.date.next;
+						
+					});
+			}
+		</script>
+	</body>
+</html>
